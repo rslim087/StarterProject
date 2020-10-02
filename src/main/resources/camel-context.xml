@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:cxf="http://cxf.apache.org/core"
+       xmlns:camel-cxf="http://camel.apache.org/schema/cxf"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+       http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd">
+
+
+       <bean id="loggingOutInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
+       <bean id="loggingInInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
+     
+     
+         <!-- <bean id="wss4jInInterceptor" class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor"> 
+                      <property name="properties"> 
+                          <map> 
+                            <entry key="action" value="UsernameToken" />         
+                        </map> 
+                      </property> 
+                  </bean>  -->
+     
+
+    <camel-cxf:cxfEndpoint
+            id="greeting-ws"
+            address="/order"
+            serviceClass="camelinaction.order.OrderEndpoint"
+    >
+    <camel-cxf:properties>
+        <entry key="mtom-enabled" value="true"/>
+    </camel-cxf:properties>
+
+          <camel-cxf:inInterceptors>
+              <bean class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
+                <constructor-arg>
+                    <map>
+                        <entry key="action" value="Signature Encrypt"/>
+                        <entry key="decryptionPropFile" value="server.properties"/> 
+                        <entry key="signaturePropFile" value="server.properties" />
+                        <entry key="passwordCallbackClass" value = "org.dev.application.PasswordCallbackHandler"/>
+                    </map>
+                </constructor-arg>
+                </bean>
+          </camel-cxf:inInterceptors>  
+
+        </camel-cxf:cxfEndpoint>
+
+
+<!-- a very specific service that does not utilize camel will be in charge
+of decrypting and encrypting requests.  -->
+<!-- is not related to camel in any way shape or form -->
+          <!-- <camel-cxf:inInterceptors>
+              <bean class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
+                <constructor-arg>
+                    <map>
+                        <entry key="action" value="UsernameToken"/>
+                        <entry key="passwordType" value="PasswordText"/>
+                        <entry key="passwordCallbackClass" value = "org.dev.application.PasswordCallbackHandler"/>
+                    </map>
+                </constructor-arg>
+                </bean>
+          </camel-cxf:inInterceptors>  
+ -->
+
+
+
+    <!-- <camelContext id="camel" xmlns="http://camel.apache.org/schema/spring">
+        <route>
+            <from uri="cxf:bean:greeting-ws"/>
+            <camel:log message="ioehrfioerjiofjerfjerfiereroejr"></camel:log>
+        </route>
+    </camelContext> -->
+
+</beans>
